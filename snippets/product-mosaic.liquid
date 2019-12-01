@@ -1,0 +1,82 @@
+{% comment %}
+  Product mosaic
+
+  @param product {object}
+    Product to use
+
+  @param selected_image {object}
+
+  @param selected_variant {object}
+
+  @param is_quickshop {Bool}
+    Is the snippet being loaded in a QuickShop
+{% endcomment %}
+
+{% assign default_image = product.featured_image %}
+
+{% if selected_variant and selected_variant.image %}
+  {% assign default_image = selected_variant.image %}
+{% endif %}
+
+{% assign lazy = true %}
+{% if is_quickshop %}
+  {% assign lazy = false %}
+{% endif %}
+
+<div
+  class="product-mosaic"
+  data-product-mosaic
+>
+  <div class="product-mosaic-sizer"></div>
+  <div class="product-mosaic-gutter"></div>
+  <div
+    class="product-mosaic-images"
+    data-product-mosaic-images
+  >
+    {% for image in product.images %}
+      <figure
+        class="
+          product-mosaic-image-figure
+          {% if default_image.id == image.id %}
+            product-mosaic-image-selected
+          {% endif %}
+        "
+        data-product-mosaic-image="{{ image.id }}"
+      >
+        <div
+          class="product-mosaic-image-wrapper"
+          data-object-fit-item
+        >
+          {%- capture data_attr -%}
+            data-image-zoom="{{ image.id }}"
+          {%- endcapture -%}
+          {%
+            include 'rimg',
+            class: 'product-mosaic-image',
+            img: image,
+            size: '1250x',
+            attr: data_attr,
+            lazy: lazy
+          %}
+
+          {% if enable_product_gallery_zoom %}
+            <div class="product-image-zoom">
+              {% include 'icons', id: 'zoom' %}
+            </div>
+          {% endif %}
+        </div>
+      </figure>
+    {% else %}
+      <figure
+        class="
+          product-mosaic-image-figure
+          product-mosaic-image-selected
+        "
+      >
+        <div class="product-mosaic-image-wrapper">
+          {{ 'image'| placeholder_svg_tag: 'product-mosaic-image placeholder-svg' }}
+        </div>
+      </figure>
+    {% endfor %}
+  </div>
+</div>

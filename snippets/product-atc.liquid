@@ -1,0 +1,202 @@
+{% comment %}
+  If a product has 1 variant (set variant, or default), then the mobile
+  popover will not show, and will only show the ATC button
+{% endcomment %}
+
+<div
+  class="
+    product-atc
+    {% if is_static or show_payment_button %}
+      product-atc-static
+    {% endif %}
+    {% if product.has_only_default_variant %}
+      product-atc-defaultvariant
+    {% endif %}
+  "
+  data-product-atc
+>
+  <div class="product-atc-steps">
+    <div
+      class="
+        product-atc-step
+        product-atc-step-form
+        product-atc-options-{{ product.options.size }}
+      "
+      data-popover-content="atc-step-form"
+      id="product-form-content-{{ product.id }}"
+    >
+      {% form 'product', product, class: 'product-form', data-product-form: '' %}
+        <div
+          class="
+            product-form-scrollable
+            product-quantity-picker-style-{{ product_quantity_picker_style }}
+          "
+        >
+          <div class="product-form-inner">
+            {% include 'product-options', type: 'both' %}
+          </div>
+
+          <div
+            class="
+              product-form-atc
+              {% if show_payment_button %}
+              product-form-atc-spb
+              {% endif %}
+            "
+            data-product-form-atc
+          >
+            {% assign submit_text = 'general.form.add_to_cart' | t %}
+
+            {% if show_payment_button or product_quantity_picker_style == 'standard' %}
+              {% assign quantity_label = 'general.form.quantity' | t %}
+              {%
+                include 'quantity',
+                name: 'quantity',
+                label: quantity_label,
+                min: 1
+              %}
+
+            	
+            {% if template == 'index' %}
+            
+             <!--Pre-order code -->
+              {%- assign current_variant = product.selected_or_first_available_variant -%}
+            {% if current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == "continue" %}
+            <button
+                class="test product-form-submit"
+                type="submit"
+                aria-label="{{ submit_text }}"
+                data-product-submit
+                {% unless product.selected_variant.available %}
+                  disabled
+                {% endunless %}
+              >
+                <span>
+                  PRE-ORDER NOW
+                </span>
+
+                {% include 'icons', id: 'loader' %}
+              </button>
+            
+            	{%else%}
+            
+            <button
+                class="test1 product-form-submit"
+                type="submit"
+                aria-label="{{ submit_text }}"
+                data-product-submit
+                {% unless product.selected_variant.available %}
+                  disabled
+                {% endunless %}
+              >
+                <span
+                  class="product-form-submit-text"
+                  data-product-text
+                >
+                  {{ submit_text }}
+                </span>
+
+                {% include 'icons', id: 'loader' %}
+              </button>
+            
+              {% endif %}
+              
+               <!--End Pre-order code -->
+            
+            {%else%}
+            
+              <button
+                class="test2 product-form-submit"
+                type="submit"
+                aria-label="{{ submit_text }}"
+                data-product-submit
+                {% unless product.selected_variant.available %}
+                  disabled
+                {% endunless %}
+              >
+                <span
+                  class="product-form-submit-text"
+                  data-product-text
+                >
+                  {{ submit_text }}
+                </span>
+
+                {% include 'icons', id: 'loader' %}
+              </button>
+            {% endif %}
+            {% else %}
+              {%
+                include 'quantity-submit',
+                min: 1,
+                submit_text: submit_text
+              %}
+
+              {% include 'icons', id: 'loader' %}
+            {% endif %}
+
+            {% if show_payment_button %}
+              <div class="product-form-spb">
+                {{ form | payment_button }}
+              </div>
+            {% endif %}
+          </div>
+
+          {% if product.has_only_default_variant %}
+            <span
+              class="product-form-atc-close"
+              data-popover-toggle
+            >
+              <div class="product-form-atc-close-button">
+                {% include 'icons', id: 'close' %}
+              </div>
+            </span>
+          {% endif %}
+        </div>
+      {% endform %}
+    </div>
+
+    <div
+      class="
+        product-atc-step
+        product-atc-step-cart
+      "
+      data-popover-content="atc-step-cart"
+    >
+      {% include 'cart', cart_inline: true %}
+    </div>
+  </div>
+
+  {% unless product.has_only_default_variant %}
+    <div class="product-popover-utils popover-utils">
+      <div class="popover-utils-item">
+        <button
+          class="popover-utils-item-button"
+          type="button"
+          aria-label="{{ 'product.general.select_options' | t }}"
+          aria-controls="product-form-content-{{ product.id }}"
+          aria-expanded="false"
+          aria-haspopup="true"
+          data-popover-trigger="atc-steps"
+          data-popover-toggle
+        >
+          <span
+            class="
+              popover-utils-item-button-label
+              popover-utils-small
+              popover-utils-mobile
+              popover-utils-secondary
+            "
+          >
+            <span class="popover-utils-item-button-text">
+              {{ 'product.general.select_options' | t }}
+            </span>
+
+            <span class="popover-utils-item-button-icon">
+              {% include 'icons', id: 'close' %}
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+  {% endunless %}
+</div>

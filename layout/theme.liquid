@@ -1,0 +1,124 @@
+<!doctype html>
+<!--[if IE]><html class="no-js ie9" lang="{{ shop.locale }}"><![endif]-->
+<!--[if !IE]><!--><html class="no-js no-touch" lang="{{ shop.locale }}"><!--<![endif]-->
+  <head>
+<meta name="uri-translation" content="on" />
+
+    <meta name="p:domain_verify" content="8745ff0e322bfeab86be3b3affd5a726"/>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>
+      {{- page_title -}}
+
+      {%- if current_tags -%}
+        {%- include 'advanced-tag-loop' -%}
+        {% assign title_tags = '' %}
+        {% assign meta_tags = current_tags | join: ', ' %}
+        {%- for tag in current_tags -%}
+          {% assign is_advanced_tag = false %}
+          {% assign cat = tag | split: '_' | first %}
+
+          {%- unless cat == tag -%}
+            {%- if cat_array contains cat -%}
+              {% assign is_advanced_tag = true %}
+              {% assign title_tags = title_tags | append: ', ' | append: tag | replace_first: '_', ': ' %}
+            {%- endif -%}
+          {%- endunless -%}
+
+          {%- unless is_advanced_tag -%}
+            {% assign title_tags = title_tags | append: ', ' | append: tag %}
+          {%- endunless -%}
+        {%- endfor -%}
+        {{ 'general.title.tags' | t: tags: title_tags | remove_first: ', ' }}
+      {%- endif -%}
+
+      {%- if current_page != 1 -%}
+        {{- 'general.title.page' | t: page: current_page -}}
+      {%- endif -%}
+
+      {%- unless page_title contains shop.name -%}
+        {{- 'general.title.shop' | t: shop: shop.name -}}
+      {%- endunless -%}
+    </title>
+	{% if handle contains 'pronunciation-guide' %}
+    	<meta name="robots" content="noindex">
+    {% endif %}
+    {% if page_description != blank %}
+      <meta name="description" content="{{ page_description | escape }}">
+    {% endif %}
+	
+    {% include 'favicon' %}
+    {% assign twitter_handle = settings.social_twitter | split: 'twitter.com/' | last %}
+    {%
+      include 'social-meta-tags',
+      twitter_handle
+    %}
+
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+
+    <script>(function(H){H.classList.remove('no-js');H.classList.add('js')})(document.documentElement)</script>
+    <script>(function(H){if('ontouchstart' in window){H.classList.remove('no-touch');H.classList.add('touch')}})(document.documentElement)</script>
+
+    {{ content_for_header }}
+
+    {{ 'theme.scss.css' | asset_url | stylesheet_tag }}
+    <!-- THIS IS MY CUSTOM CSS -->
+  {{ 'main.css' | asset_url | stylesheet_tag }}
+  <!-- END NEW CODE  -->
+  
+  {% include 'shogun-head' %}
+{% include 'weglot_hreftags' %}
+{% include 'weglot_switcher' %}
+<script src="https://shinedezign.tk/preorder/js/preorder.js"></script></head>
+
+  <body>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//portal.referralcandy.com/assets/widgets/refcandy-candyjar.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","refcandy-candyjar-js");</script>
+    {% include 'photoswipe' %}
+
+    {% section 'pxs-announcement-bar' %}
+
+    {% section 'static-header' %}
+
+    <div class="banners" data-banners></div>
+
+    <main class="site-main">
+      {{ content_for_layout }}
+    </main>
+    
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//portal.referralcandy.com/assets/widgets/refcandy-candyjar.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","refcandy-candyjar-js");</script>   
+    {% section 'static-footer' %}
+
+    {% capture dismiss_icon %}
+      {% include 'icons', id: 'close' %}
+    {% endcapture %}
+
+    {% comment %}
+      Modal container
+    {% endcomment %}
+    {% include 'modal' %}
+    <script
+      src="{{ 'reach.js' | asset_url }}"
+      data-theme-data
+      data-scripts
+      data-shopify-api-url="{{ 'api.jquery.js' | shopify_asset_url }}"
+      data-shopify-common="{{ 'shopify_common.js' | shopify_asset_url }}"
+      data-shopify-countries="/services/javascripts/countries.js"
+      data-shopify-currencies="//cdn.shopify.com/s/javascripts/currencies.js"
+      data-shopify-customer="{{ 'customer_area.js'  | shopify_asset_url }}"
+      data-shopify-jquery-cart="{{ 'jquery.cart.js' | asset_url }}"
+      data-shopify-qrcode="{{ 'vendor/qrcode.js' | shopify_asset_url }}"
+    >
+      {
+        "dismiss_icon": {{ dismiss_icon | json }}
+      }
+    </script>
+
+    {% include 'structured-data' %}
+  
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//portal.referralcandy.com/assets/widgets/refcandy-poprocks.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","refcandy-poprocks-js");</script> 
+{% include 'gtranslate', float: 'yes' %}
+</body>
+</html>

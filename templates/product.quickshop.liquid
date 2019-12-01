@@ -1,0 +1,38 @@
+{% layout none %}
+
+<div class="product-quickshop">
+  {%
+    include 'product' with product,
+    onboard: false,
+    description: blank,
+    is_quickshop: true,
+    is_static: false,
+    show_vendor: settings.qs_show_vendor,
+    show_payment_button: settings.qs_show_payment_button,
+    show_share_buttons: settings.qs_show_social_sharing_buttons,
+    product_options_position: settings.qs_options_position,
+    product_quantity_picker_style: settings.qs_quantity_picker_style,
+    product_gallery_layout_desktop: 'slideshow',
+    product_gallery_position_mobile: 'above',
+    product_gallery_position_desktop: 'left',
+    enable_product_gallery_zoom: false,
+    enable_product_sticky_details: false,
+  %}
+</div>
+
+<script
+  type="application/json"
+  data-quickshop-data
+>
+  {
+    "money_format": {{ shop.money_format | strip_html | json }},
+    "product": {{ product | json }},
+    "variant_available": {{ product.selected_or_first_available_variant.available | json }},
+    "cart_redirect": {{ settings.qs_enable_cart_redirect | json }},
+    "text_strings": {
+      "add_to_cart": {{ 'general.form.add_to_cart' | t | json }},
+      "quantity_text": {{ 'product.general.add_to_cart' | t: amount: '** amount **' | json }},
+      "quantity_disable": {{ 'product.general.out_of_stock' | t | json }}
+    }
+  }
+</script>

@@ -1,0 +1,146 @@
+{% comment %}
+  Product gallery
+
+  @param product {object}
+    Product to use
+
+  @param selected_image {object}
+
+  @param selected_variant {object}
+
+  @param is_quickshop {Bool}
+    Is the snippet being loaded in a QuickShop
+{% endcomment %}
+
+{% assign default_image = product.featured_image %}
+
+{% if selected_variant and selected_variant.image %}
+{% comment %}{% assign default_image = selected_variant.image %}{% endcomment %}
+{% endif %}
+
+{% assign lazy = true %}
+{% if is_quickshop %}
+  {% assign lazy = false %}
+{% endif %}
+
+<div
+  class="product-slideshow"
+  data-product-slideshow
+>
+  <div
+    class="product-slideshow-images"
+    data-product-slideshow-images
+  >
+     
+    
+    {% for image in product.images %}
+      <figure
+        class="
+          product-slideshow-image
+          {% if default_image.id == image.id %}
+            product-slideshow-image-selected
+          {% endif %}
+        "
+        data-product-slideshow-image="{{ image.id }}"
+      >
+        <div
+          class="product-slideshow-image-img-wrapper"
+          data-object-fit-item
+        >
+          {%- capture data_attr -%}
+            data-image-zoom="{{ image.id }}"
+          {%- endcapture -%}
+          {%
+            include 'rimg',
+            class: 'product-slideshow-image-img',
+            img: image,
+            size: '1250x',
+            attr: data_attr,
+            lazy: lazy
+          %}
+
+          {% if enable_product_gallery_zoom %}
+            <div class="product-image-zoom">
+              {% include 'icons', id: 'zoom' %}
+            </div>
+          {% endif %}
+        </div>
+      </figure>
+    {% else %}
+      <figure
+        class="
+          product-slideshow-image
+          product-slideshow-image-selected
+        "
+      >
+        <div class="product-slideshow-image-img-wrapper">
+          {{ 'image'| placeholder_svg_tag: 'product-slideshow-image-img placeholder-svg' }}
+        </div>
+      </figure>
+    {% endfor %}
+   
+  </div>
+
+  {% if product.images.size > 1 %}
+    <div
+      class="product-slideshow-thumbnails-wrapper"
+      data-product-slideshow-thumbnails-wrapper
+    >
+      <div
+        class="product-slideshow-thumbnails-prev"
+        data-product-slideshow-thumbnails-prev
+      >
+        {%
+          include 'icons',
+          id: 'chevron',
+          icon_class: 'product-slideshow-thumbnails-icon'
+        %}
+      </div>
+
+      <div
+        class="product-slideshow-thumbnails"
+        data-product-slideshow-thumbnails
+      >
+        {% for image in product.images %}
+          <button
+            class="
+              product-slideshow-thumbnail
+              {% if default_image.id == image.id %}
+                product-slideshow-thumbnail-selected
+              {% endif %}
+            "
+            data-product-slideshow-thumbnail="{{ image.id }}"
+          >
+            <span
+              class="product-slideshow-thumbnail-wrapper"
+              data-object-fit-item
+            >
+              {% assign thumbnail_size = '290x' %}
+              {% if is_quickshop %}
+                {% assign thumbnail_size = '70x' %}
+              {% endif %}
+              {%
+                include 'rimg',
+                class: 'product-slideshow-thumbnail-img',
+                img: image,
+                size: thumbnail_size,
+                lazy: lazy_slideshow
+              %}
+            </span>
+          </button>
+        {% endfor %}
+      </div>
+
+      <div
+        class="product-slideshow-thumbnails-next"
+        data-product-slideshow-thumbnails-next
+      >
+        {%
+          include 'icons',
+          id: 'chevron',
+          icon_class: 'product-slideshow-thumbnails-icon'
+        %}
+      </div>
+    </div>
+  {% endif %}
+</div>

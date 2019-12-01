@@ -1,0 +1,265 @@
+{% assign is_interactive = false %}
+{% if section.blocks.size > 1 %}
+  {% assign is_interactive = true %}
+{% endif %}
+
+{% assign autoplay = false %}
+{% if section.settings.should_autoplay %}
+  {% assign autoplay = section.settings.slide_autoplay %}
+{% endif %}
+
+<script
+  type="application/json"
+  data-section-type="dynamic-slideshowhome"
+  data-section-id="{{ section.id }}"
+  data-section-data
+>
+  {
+    "autoplay": {{ autoplay | json }}
+  }
+</script>
+
+<div
+  class="
+    slideshow
+    slideshow-slides-{{ section.blocks.size }}
+    {% if is_interactive %}slideshow-interactive{% endif %}
+  "  style="width:50%;float:left;"
+  {% if is_interactive %}data-slideshow{% endif %}
+>
+   {% assign show_link = false %}
+    {% if section.settings.link != blank and section.settings.link_text != blank %}
+      {% assign show_link = true %}
+    {% endif %}
+
+    {% assign layout_type = 'default' %}
+    {% if section.settings.text_layout contains 'full-width' %}
+      {% assign layout_type = 'full-width' %}
+    {% endif %}
+
+    {% assign layout_direction = 'left' %}
+    {% if section.settings.text_layout contains 'right' %}
+      {% assign layout_direction = 'right' %}
+    {% elsif section.settings.text_layout contains 'center' %}
+      {% assign layout_direction = 'center' %}
+    {% endif %}
+  {% for block in section.blocks %}
+   
+
+    <article
+      class="
+        slideshow-slide
+        {% unless block.settings.image %}slideshow-slide-no-image{% endunless %}
+        "      
+      tabindex="-1"
+      data-slideshow-slide
+      data-slide="{{ forloop.index0 }}"
+      data-slide-layout="{{ layout_type }}"
+      {{ block.shopify_attributes }}
+    >
+      <div
+        class="
+          slide-layout-{{ layout_type }}
+          slide-direction-{{ layout_direction }}
+        "
+      >
+{% if is_interactive %}
+                  <div class="slideshow-pagination">
+                    <button
+                      class="slideshow-pagination-prev"
+                      data-slideshow="prev"
+                      aria-label="{{ 'general.pagination.prev' | t }}"
+                    >
+                      <span class="slideshow-pagination-icon">
+                        {%
+                          include 'icons',
+                          id: 'chevron'
+                        %}
+                      </span>
+                    </button>
+
+                    <button
+                      class="slideshow-pagination-next"
+                      data-slideshow="next"
+                      aria-label="{{ 'general.pagination.next' | t }}"
+                    >
+                      <span class="slideshow-pagination-icon">
+                        {%
+                          include 'icons',
+                          id: 'chevron'
+                        %}
+                      </span>
+                    </button>
+                  </div>
+         {% endif %}
+        <div class="slideshow-slide-media" style="width:100%;">
+          <figure class="slideshow-slide-image">
+            {% if block.settings.image %}
+              {% assign image_size = '560x' %}
+              {% if layout_type contains 'full-width' %}
+                {% assign image_size = '1280x' %}
+              {% endif %}
+              {%
+                include 'rimg',
+                img: block.settings.image,
+                size: image_size,
+                attr: 'data-slide-image',
+                lazy: true
+              %}
+            {% else %}
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            {% endif %}
+          </figure>
+
+         
+        </div>
+		
+       
+         {%
+            include 'patterns',
+            size: 'large',
+            class: 'slideshow-slide-pattern'
+          %}
+      </div>
+    </article>
+  	
+  {% endfor %}
+   
+</div>
+<div style="width:50%;float:left">
+      <h3> demo</h3>
+  </div> 
+{% schema %}
+{
+  "name": "Slideshowhome",
+  "class": "section-slideshow",
+  "settings": [
+    {
+      "id": "should_autoplay",
+      "type": "checkbox",
+      "label": "Auto-rotate slides",
+      "default": false
+    },
+    {
+      "id": "slide_autoplay",
+      "type": "range",
+      "label": "Autoplay delay",
+      "min": 3,
+      "max": 10,
+      "unit": "sec",
+      "default": 5
+    },
+        {
+          "id": "text_layout",
+          "type": "select",
+          "label": "Text layout",
+          "info": "Only affects screens wider than 768px.",
+          "options": [
+            {
+              "group": "Default",
+              "value": "default-left",
+              "label": "Left"
+            },
+            {
+              "group": "Default",
+              "value": "default-right",
+              "label": "Right"
+            },
+            {
+              "group": "Full width",
+              "value": "full-width-left",
+              "label": "Left"
+            },
+            {
+              "group": "Full width",
+              "value": "full-width-right",
+              "label": "Right"
+            },
+            {
+              "group": "Full width",
+              "value": "full-width-center",
+              "label": "Center"
+            }
+          ],
+          "default": "default-left"
+        },
+        {
+          "type": "checkbox",
+          "id": "custom_color",
+          "label": "Use custom text color"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "info": "Only affects screens wider than 768px.",
+          "default": "#2f5d62"
+        },
+        {
+          "id": "title",
+          "type": "text",
+          "label": "Heading",
+          "default": "Slide"
+        },
+        {
+          "id": "text",
+          "type": "text",
+          "label": "Subheading",
+          "default": "Introduce customers to your shop with lifestyle imagery and product photography."
+        },
+        {
+          "id": "link",
+          "type": "url",
+          "label": "Link"
+        },
+        {
+          "id": "link_text",
+          "type": "text",
+          "label": "Link text"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Primary"
+            },
+            {
+              "value": "secondary",
+              "label": "Secondary"
+            }
+          ],
+          "default": "secondary"
+        }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "id": "image",
+          "type": "image_picker",
+          "label": "Image"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "category": "Image",
+      "name": "Slideshowhome",
+      "blocks": [
+        {
+          "type": "slide"
+        }
+       
+      ]
+    }
+  ]
+}
+
+{% endschema %}

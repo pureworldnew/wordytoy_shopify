@@ -1,0 +1,78 @@
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-instagram-feed"
+  data-section-data
+>
+  {
+    "access_token": {{ section.settings.access_token | escape | json }}
+  }
+</script>
+{% assign onboarding = false %}
+{% if section.settings.access_token != blank %}
+  {% assign onboarding = true %}
+{% endif %}
+
+{%
+  include 'gallery',
+  title: section.settings.title,
+  subheading: section.settings.subheading,
+  background_style: section.settings.background,
+  onboarding: onboarding,
+  image_count: 6,
+  image_1: false,
+  image_2: false,
+  image_3: false,
+  image_4: false,
+  image_5: false,
+  image_6: false
+%}
+
+{% schema %}
+{
+  "name": "Instagram feed",
+  "class": "section-dynamic-instagram-feed",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Instagram feed"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "text",
+      "id": "access_token",
+      "label": "Access token ([?](http:\/\/instagram.pixelunion.net))"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "background-default",
+          "label": "Default"
+        },
+        {
+          "value": "background-alternate",
+          "label": "Alternate"
+        }
+      ],
+      "default": "background-default"
+    }
+  ],
+  "presets": [
+    {
+      "category": "Social media",
+      "name": "Instagram feed",
+      "settings": {}
+    }
+  ]
+}
+
+{% endschema %}

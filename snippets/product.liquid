@@ -1,0 +1,248 @@
+{% comment %}
+  @param product {object}
+    Product to use
+
+  @param onboard {Bool}
+    Should onboarding values be used
+
+  @param description {HTML}
+    Provide an alternate HTML string to override the product description
+
+  @param is_quickshop {Bool}
+    Is the snippet being loaded in a QuickShop
+
+  @param is_static {Bool}
+    Is the product being used on the home page
+
+  @param show_vendor {Bool}
+    Show vendor
+
+  @param show_payment_button {Bool}
+    Whether to show payment buttons
+
+  @param show_share_buttons {Bool}
+    Whether to show share buttons
+
+  @param product_options_position {String}
+    Product options position in product details
+
+  @param product_quantity_picker_style {String}
+    Product quantity picker style
+
+  @param product_gallery_layout_desktop {String}
+    Product gallery layout in desktop view
+
+  @param product_gallery_position_mobile {String}
+    Product gallery position on mobile
+
+  @param product_gallery_position_desktop {String}
+    Product gallery position on desktop
+
+  @param enable_product_gallery_zoom {Bool}
+    Whether to use product zoom
+
+  @param enable_product_sticky_details {Bool}
+    Whether to use sticky details on desktop
+{% endcomment %}
+
+{% assign selected_variant = product.selected_or_first_available_variant %}
+{% comment %}
+  Set selected image as below to persist product grid image to active slider image
+  {% assign selected_image = product.featured_image %}
+{% endcomment %}
+{% assign selected_image = selected_variant.image | default: product.featured_image %}
+
+{% assign compare_at_price = selected_variant.compare_at_price %}
+{% assign price = selected_variant.price %}
+{% assign product_available = product.available %}
+
+{% assign on_sale = false %}
+{% if compare_at_price > price %}
+  {% assign on_sale = true %}
+{% endif %}
+
+{% assign onboard = false %}
+{% if product.empty? %}
+  {% assign onboard = true %}
+{% endif %}
+
+{% assign product_title = product.title %}
+{% assign product_link = product.url | within: collection %}
+{% assign product_description = product.description %}
+
+{% if description != blank %}
+  {% assign product_description = description %}
+{% endif %}
+
+{% if onboard %}
+  {% assign price = 1999 %}
+  {% assign product_title = 'onboarding.product.title' | t %}
+  {% assign product_link = '#' %}
+{% endif %}
+
+{% assign is_interactive = false %}
+{% if product.images.size > 1 %}
+  {% assign is_interactive = true %}
+{% endif %}
+
+{%- capture product_header -%}
+  {% if show_vendor and product.vendor != blank %}
+    <div class="product-vendor">
+      {{ product.vendor }}
+    </div>
+  {% endif %}
+
+  {% if is_quickshop or is_static %}
+    <h2 class="product-title">
+      <a href="{{ product_link }}">
+        {{ product_title }}
+      </a>
+    </h2>
+  {% else %}
+    <h1 class="product-title">
+      {{ product_title }}
+    </h1>
+  {% endif %}
+
+  {%
+    include 'product-price',
+    component_scope: 'product-main-price'
+    on_sale: on_sale,
+    compare_at_price: compare_at_price,
+    price: price,
+  %}
+{%- endcapture -%}
+
+<article
+  class="
+    product
+    product-gallery-layout-desktop-{{ product_gallery_layout_desktop }}
+    product-gallery-position-mobile-{{ product_gallery_position_mobile }}
+    product-gallery-position-desktop-{{ product_gallery_position_desktop }}
+    product-options-position-{{ product_options_position }}
+    {% if show_payment_button %}
+      product-has-spb
+    {% endif %}
+  "
+  data-product
+  {% if is_quickshop %}
+    data-product-quickshop
+  {% endif %}
+>
+  <div class="product-header-mobile" aria-hidden="true">
+    {{ product_header | replace: 'h1', 'h2' }}
+  </div>
+
+  <div
+    class="
+      product-gallery
+      {% if is_interactive %}
+        product-gallery-interactive
+      {% endif %}
+      {% if enable_product_gallery_zoom %}
+        product-gallery-zoom
+      {% endif %}
+    "
+    data-product-gallery="{{ product_gallery_layout_desktop }}"
+  >
+    {%
+      include 'photoswipe',
+      photoswipe_images: product.images
+    %}
+
+    {% unless is_quickshop %}
+      {%
+        include 'product-cards',
+        selected_image: selected_image,
+        product: product,
+        selected_variant: product.selected_or_first_available_variant
+        enable_product_gallery_zoom: enable_product_gallery_zoom,
+      %}
+    {% endunless %}
+
+    {% if product_gallery_layout_desktop == 'slideshow' %}
+      {%
+        include 'product-slideshow',
+        selected_image: selected_image,
+        product: product,
+        selected_variant: product.selected_or_first_available_variant,
+        enable_product_gallery_zoom: enable_product_gallery_zoom,
+        is_quickshop: is_quickshop
+      %}
+    {% elsif product_gallery_layout_desktop == 'mosaic' %}
+      {%
+        include 'product-mosaic',
+        selected_image: selected_image,
+        product: product,
+        selected_variant: product.selected_or_first_available_variant,
+        enable_product_gallery_zoom: enable_product_gallery_zoom,
+        is_quickshop: is_quickshop
+      %}
+    {% else %}
+      {%
+        include 'product-images',
+        selected_image: selected_image,
+        product: product,
+        selected_variant: product.selected_or_first_available_variant,
+        enable_product_gallery_zoom: enable_product_gallery_zoom,
+        is_quickshop: is_quickshop
+      %}
+    {% endif %}
+  </div>
+
+  <div class="product-main">
+    <div
+      class="
+        product-main-content
+        {% if enable_product_sticky_details %}
+          product-main-content-sticky
+        {% endif %}
+      "
+      data-product-main-content
+    >
+      <div class="product-header-desktop">
+        {% unless is_quickshop %}
+          {%-
+            include 'breadcrumbs',
+            is_mobile: false
+          -%}
+        {% endunless %}
+
+        {{ product_header }}
+      </div>
+
+      {% if product_description != blank %}
+        <div class="product-description rte" data-product-description>
+          {{ product_description }}
+        </div>
+      {% endif %}
+
+      {% unless onboard %}
+        {%
+          include 'product-atc',
+          is_static: is_static,
+          show_payment_button: show_payment_button,
+          product_quantity_picker_style: product_quantity_picker_style,
+        %}
+      {% endunless %}
+
+      {%- if show_share_buttons -%}
+        {% assign social_image = false %}
+        {% if product.featured_image %}
+          {% assign social_image = selected_image | img_url: '1024x' %}
+        {% endif %}
+        {% assign social_url = shop.url | append: product_link %}
+        {% assign social_title = product.title %}
+
+        {%-
+          include 'share-buttons',
+          share_class: 'product-share-buttons',
+          show_title: true,
+          social_image: social_image,
+          social_title: social_title,
+          social_url: social_url
+        -%}
+      {%- endif -%}
+    </div>
+  </div>
+</article>

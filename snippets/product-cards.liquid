@@ -1,0 +1,72 @@
+{% comment %}
+  Product cards
+
+  @param product {object}
+    Product to use
+
+  @param selected_image {object}
+
+  @param selected_variant {object}
+{% endcomment %}
+
+{% assign default_image = product.featured_image %}
+
+{% if selected_variant and selected_variant.image %}
+  {% assign default_image = selected_variant.image %}
+{% endif %}
+
+<div
+  class="product-cards"
+  data-product-cards
+>
+  {% for image in product.images %}
+    <figure
+      class="
+        product-card-figure
+        {% if default_image.id == image.id %}
+          product-card-image-selected
+        {% endif %}
+      "
+      data-cards-player-card="{{ image.id }}"
+    >
+      <div
+        class="product-card-image-wrapper"
+        data-cards-player-card-visual
+        data-object-fit-item
+      >
+        {%- capture data_attr -%}
+          data-image-zoom="{{ image.id }}"
+        {%- endcapture -%}
+        {%
+          include 'rimg',
+          class: 'product-card-image',
+          img: image,
+          size: '1250x',
+          attr: data_attr,
+          lazy: true
+        %}
+
+        {% if enable_product_gallery_zoom %}
+          <div class="product-image-zoom">
+            {% include 'icons', id: 'zoom' %}
+          </div>
+        {% endif %}
+      </div>
+    </figure>
+  {% else %}
+    <figure
+      class="
+        product-card-image-figure
+        product-card-image-selected
+      "
+      data-cards-player-card
+    >
+      <div
+        class="product-card-image-wrapper"
+        data-cards-player-card-visual
+      >
+        {{ 'image'| placeholder_svg_tag: 'product-card-image placeholder-svg' }}
+      </div>
+    </figure>
+  {% endfor %}
+</div>
